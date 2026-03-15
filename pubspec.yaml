@@ -1,0 +1,48 @@
+name: moviebox_mg
+description: Application de streaming de films et séries
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP requests
+  http: ^1.1.0
+
+  # WebView pour Vidsrc player
+  webview_flutter: ^4.4.1
+  webview_flutter_android: ^3.12.1
+  webview_flutter_wkwebview: ^3.9.1
+
+  # Navigation
+  go_router: ^12.0.0
+
+  # State management
+  provider: ^6.1.1
+
+  # Cache images
+  cached_network_image: ^3.3.0
+
+  # Local storage (favoris, watchlist)
+  shared_preferences: ^2.2.2
+
+  # Google AdMob
+  google_mobile_ads: ^4.0.0
+
+  # Icônes
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
