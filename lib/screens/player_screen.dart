@@ -1,10 +1,8 @@
 // lib/screens/player_screen.dart
 
-import 'dart:ui_web' as ui_web;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'dart:html' as html;
 import '../models/movie.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -24,7 +22,7 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  late WebViewController _controller;
+  WebViewController? _controller;
   bool _loading = true;
 
   String get _vidsrcUrl {
@@ -44,28 +42,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
     if (!kIsWeb) {
       _controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setNavigationDelegate(
-          NavigationDelegate(
-            onPageFinished: (_) => setState(() => _loading = false),
-          ),
-        )
+        ..setUserAgent('Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36') // ← Ajoute cette ligne
+        ..setNavigationDelegate(NavigationDelegate(
+          onPageFinished: (_) => setState(() => _loading = false),
+        ))
         ..loadRequest(Uri.parse(_vidsrcUrl));
     } else {
-      // Pour le web : enregistrer l'iframe
-      final String viewId = 'vidsrc-${widget.movie.id}';
-      ui_web.platformViewRegistry.registerViewFactory(
-        viewId,
-            (int id) {
-          final iframe = html.IFrameElement()
-            ..src = _vidsrcUrl
-            ..style.border = 'none'
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..allowFullscreen = true
-            ..setAttribute('allow', 'autoplay; fullscreen');
-          return iframe;
-        },
-      );
       setState(() => _loading = false);
     }
   }
@@ -85,25 +67,36 @@ class _PlayerScreenState extends State<PlayerScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
-      body: _loading
-          ? const Center(
+      body: kIsWeb
+          ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Color(0xFFE50914)),
-            SizedBox(height: 16),
-            Text('Chargement...',
-                style: TextStyle(color: Colors.white70)),
+            const Icon(Icons.play_circle_outline,
+                color: Colors.white54, size: 80),
+            const SizedBox(height: 16),
+            const Text(
+              'Lecture disponible sur Android uniquement',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFE50914)),
+              onPressed: () {},
+              child: const Text('Ouvrir dans le navigateur'),
+            ),
           ],
         ),
       )
-          : kIsWeb
-          ? HtmlElementView(
-        viewType: 'vidsrc-${widget.movie.id}',
-      )
           : Stack(
         children: [
-          WebViewWidget(controller: _controller),
+          WebViewWidget(controller: _controller!),
+          if (_loading)
+            const Center(
+              child: CircularProgressIndicator(
+                  color: Color(0xFFE50914)),
+            ),
         ],
       ),
     );
